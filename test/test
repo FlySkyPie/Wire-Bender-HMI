@@ -1,0 +1,84 @@
+#!/usr/bin/env php
+<?php
+
+class Tester {
+  /*
+   * Checking folder and test script isn't exists.
+   * @param string $folder
+   * @return boolean
+   */
+
+  function checkFolder(string $folder) {
+    if (!file_exists($folder)) {
+      print("The file not found.\n");
+      return false;
+    }
+    if (!is_dir($folder)) {
+      print("The path isn't a folder.\n");
+      return false;
+    }
+    if (!file_exists($folder . "/test.sh")) {
+      print("The test script not found.\n");
+      return false;
+    }
+    return true;
+  }
+
+  /*
+   * Check there are parameter from argv.
+   * @param array $parameter
+   */
+
+  function checkParameter(array $parameter) {
+    if (count($parameter) === 1) {
+      print("Argument missing.\n");
+      exit();
+    }
+  }
+
+  /*
+   * Test the item.
+   * @param string $name
+   */
+
+  function testItem(string $name) {
+    if (!$this->checkFolder($name)) {
+      return;
+    }
+    chdir($name);
+    system("bash test.sh");
+    chdir("..");
+  }
+
+  /*
+   * Test all item in the folder.
+   * @param string $command
+   */
+
+  function testAll(string $command) {
+    if ($command !== "all") {
+      return;
+    }
+    $files = array_diff(scandir('.'), array('..', '.','test.php','test'));
+    foreach ($files as $file) {
+      $this->testItem($file);
+    }
+    exit();
+  }
+
+  /*
+   * Enter point of program,
+   * should give $argv.
+   * @param array $parameter
+   */
+
+  function start(array $parameter) {
+    $this->checkParameter($parameter);
+    $this->testAll($parameter[1]);
+    $this->testItem($parameter[1]);
+  }
+
+}
+
+$tester = new Tester;
+$tester->start($argv);
